@@ -8,12 +8,12 @@ La documentación de Khipu.com se puede ver desde aquí: [http://khipu.com/page/
 
 ## Instalación
 ```shell
-pip install -e git+https://github.com/jrperdomoz/khipu.git#egg=khipu
+pip install -e git+https://github.com/airsoull/khipu#egg=khipu
 ```
 
 ## Ejemplos
 
-##### 1) Verificar Estado de una cuenta Khipu
+##### 1) Verificar Estado de una cuenta Khipu (Not Working)
 
 Este servicio permite consultar el estado de una cuenta khipu, la cual retorna
 un json mencionando el ambiente en que se encuentra y si puede recibir pagos.
