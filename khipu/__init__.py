@@ -1,67 +1,54 @@
 # -*- coding: utf-8 -*-
+import logging
+
 from . import services
+from .exceptions import KhipuError
 
-
-# Definimos la ruta de Khipu
-# KHIPU_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+logger = logging.getLogger(__name__)
 
 
 class Khipu(object):
     """
-    Provee y centraliza la carga de los servicios que presta Khipu
+    Método formal para la comunicacion con Khipu
     """
-    # diccionario que contiene los nombres de los servicios que existen
-    # y si requieren autenticación
-    services = {
-        'CreateEmail': True,
-        'CreatePaymentPage': True,
-        'CreatePaymentURL': True,
-        'VerifyPaymentNotification': False,
-        'ReceiverStatus': True,
-        'SetBillExpired': True,
-        'SetPaidByReceiver': True,
-        'SetRejectedByPayer': True,
-        'PaymentStatus': True,
-        'UpdatePaymentNotificationUrl': True,
-        'ReceiverBanks': True,
-        'GetPaymentNotification': True
-    }
 
-    def __init__(self, receiver_id, secret):
-        """
-        Identificar al cobrador que utilizara los servicios.
-        No es necesario para utilizar el servicio VerifyPaymentNotification.
-        """
-        # Corresponde al ID del cobrador.
-        self.receiver_id = receiver_id
-        # Corresponde a la llave del cobrador.
-        self.secret = secret
+    def __init__(self, receiver_id, secret_key):
+        self.services = [
+            'GetBanks',
+            'CreatePayment',
+            'GetPayment',
+        ]
+        self.KHIPU_RECEIVER_ID = receiver_id
+        self.KHIPU_SECRET_KEY = secret_key
 
     def service(self, service_name, **kwargs):
         """
-        Carga el servicio y retorna el objecto, en caso de no existir
-        el servicio, se invoca una excepcion
+        Llamar los servicios disponibles de Khipu.
+        @Parametros:
+            service_name: Nombre del servicio requerido de Khipu.
+            kwargs: Dict con data que necesita el servicio.
+        @Return
+            Objeto Request que responde Khipu.
         """
         if service_name in self.services:
-            # Es requerido identificarse para usar estos servicios
-            if self.receiver_id and self.secret:
-                class_name = 'KhipuService' + service_name
+            if self.KHIPU_RECEIVER_ID and self.KHIPU_SECRET_KEY:
                 service = getattr(
-                    services,
-                    class_name
-                )(self.receiver_id, self.secret, service_name, **kwargs)
-                return service.request()
+                    services, service_name
+                )(
+                    self.KHIPU_RECEIVER_ID, self.KHIPU_SECRET_KEY,
+                    service_name, **kwargs)
+                return service.response()
             else:
-                raise KhipuError(
-                    "Is necessary to authenticate to use the service {0}".format(
-                        service_name))
+                msg = """
+                    Necessary authentication for the service {} {} {}
+                    """.format(
+                    service_name,
+                    self.KHIPU_SECRET_KEY,
+                    self.KHIPU_RECEIVER_ID
+                )
+                logger.error(msg)
+                raise KhipuError(msg)
         else:
-            # Invocamos un Exception
-            raise KhipuError(
-                "The service {0} does not exist".format(service_name))
-
-
-class KhipuError(Exception):
-
-    def __init__(self, result):
-        Exception.__init__(self, result)
+            msg = "Service does not exist {}".format(service_name)
+            logger.error(msg)
+            raise KhipuError(msg)
