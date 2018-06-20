@@ -44,7 +44,7 @@ class KhipuService(object):
         """
         El orden de los valores debe ser METODO&URL&LOS_PARAMETROS_A_ENVIAR
         """
-        cad = "&".join(['%s=%s' % ((urllib.quote(k, safe=''), urllib.quote(v, safe=''))) for k, v in self.data.iteritems()])  # noqa
+        cad = "&".join(['%s=%s' % ((urllib.quote(k, safe=''), urllib.quote(v, safe=''))) for k, v in self.data.items()])  # noqa
         cad = "&" + cad if cad else ''
         return '{}&{}'.format(self.method, urllib.quote(self.get_url_service(), safe='')) + cad  # noqa
 
