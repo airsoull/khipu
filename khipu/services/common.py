@@ -3,7 +3,12 @@ import hashlib
 import hmac
 import logging
 import requests
-import urllib
+
+try:
+    from urllib import quote  # Python 2.X
+except ImportError:
+    from urllib.parse import quote
+
 
 from requests.exceptions import RequestException, Timeout, ConnectionError
 
@@ -44,9 +49,9 @@ class KhipuService(object):
         """
         El orden de los valores debe ser METODO&URL&LOS_PARAMETROS_A_ENVIAR
         """
-        cad = "&".join(['%s=%s' % ((urllib.quote(k, safe=''), urllib.quote(v, safe=''))) for k, v in self.data.items()])  # noqa
+        cad = "&".join(['%s=%s' % ((quote(k, safe=''), quote(v, safe=''))) for k, v in self.data.items()])  # noqa
         cad = "&" + cad if cad else ''
-        return '{}&{}'.format(self.method, urllib.quote(self.get_url_service(), safe='')) + cad  # noqa
+        return '{}&{}'.format(self.method, quote(self.get_url_service(), safe='')) + cad  # noqa
 
     def get_url_service(self):
         """
