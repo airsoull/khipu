@@ -43,15 +43,18 @@ class KhipuService(object):
         Genera el Hash que requiere khipu.
         """
         return hmac.new(
-            self.secret, self.concatenated(), hashlib.sha256).hexdigest()
+            bytes(self.secret, 'utf-8'),
+            bytes(self.concatenated(), 'utf-8'),
+            hashlib.sha256
+        ).hexdigest()
 
     def concatenated(self):
         """
         El orden de los valores debe ser METODO&URL&LOS_PARAMETROS_A_ENVIAR
         """
         cad = "&".join([
-            '%s=%s' % ((quote(k.encode('utf-8'), safe=''),
-                        quote(v.encode('utf-8'), safe='')))
+            '%s=%s' % ((quote(k, safe=''),
+                        quote(v, safe='')))
             for k, v in self.data.items()
         ])
         cad = "&" + cad or ''
